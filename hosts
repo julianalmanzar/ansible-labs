@@ -1,0 +1,50 @@
+[Linux_Centos_Servers]
+MSP-VS-MySQL-01 ansible_host=172.20.0.51
+MSP-VS-API-01 ansible_host=172.20.70.131
+#MSP-VS-WEB-08 ansible_host=172.20.0.80
+#MSP-VS-KALI-01 ansible_host=172.20.80.170
+#MSP-VS-PASS-01 ansible_host=172.20.80.174
+MSP-VS-API-02 ansible_host=172.20.80.132
+MSP-VS-APP-11 ansible_host=172.20.80.152
+#msp-vs-dns-001 ansible_host=172.20.70.115
+MSP-VS-KUB-01 ansible_host=172.20.80.175
+MSP-VS-KUB-02 ansible_host=172.20.80.176
+MSP-VS-KUB-03 ansible_host=172.20.80.177
+MSP-VS-KUB-04 ansible_host=172.20.80.178
+MSP-VS-MON-01 ansible_host=172.20.80.141
+MSP-VS-MON-02 ansible_host=172.20.80.143
+MSP-VS-MySQL-02 ansible_host=172.20.80.147
+MSP-VS-ZAM-01 ansible_host=172.20.80.136
+MSP-VS-WEB-03 ansible_host=172.20.0.50
+MSP-VS-WEB-07 ansible_host=172.20.0.110
+#MSP-VS-APP-05 ansible_host=172.20.0.108
+
+[Linux_Ubuntu_Servers]
+#MSP-VS-APP-03 ansible_host=172.20.70.124
+MSP-VS-APP-08 ansible_host=172.20.70.105
+MSP-VS-APP-10 ansible_host=172.20.80.151
+#MSP-VS-WCTL-01 ansible_host=172.20.80.142
+#MSP-VS-XROAD-01 ansible_host=172.20.80.127
+#MSP-VS-SNIP-01 ansible_host=172.20.80.121
+
+[Linux_Test_Servers]
+MSP-VS-API-02 ansible_host=172.20.80.132
+MSP-VS-WCTL-01 ansible_host=172.20.80.142
+MSP-VS-APP-03 ansible_host=172.20.70.124
+
+#[Linux_Test_Servers:vars]
+#ansible_user="{{ server_username  }}"
+#ansible_ssh_pass="{{ server_password  }}"
+#ansible_become_pass="{{ server_password  }}"
+
+
+#[Linux_Centos_Servers:vars]
+#ansible_user="{{ server_username  }}"
+#ansible_ssh_pass="{{ server_password  }}"
+#ansible_become_pass="{{ server_password  }}"
+
+#[Linux_Ubuntu_Servers:vars]
+#ansible_user="{{ server_username  }}"
+#ansible_ssh_pass="{{ server_password  }}"
+#ansible_become_pass="{{ server_password  }}"
+

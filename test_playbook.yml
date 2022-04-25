@@ -1,0 +1,13 @@
+---
+- name: Playbook de Prueba
+  gather_facts: true
+  hosts: Linux_Centos_Servers
+  become: yes
+  become_method: sudo
+
+  tasks:
+    - name: Allow Only linux_servers_admins Centos
+      shell:
+        "realm permit -g linux_servers_admins@msp.gob.do"
+      when: ansible_distribution == "CentOS"
+

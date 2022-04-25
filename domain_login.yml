@@ -1,0 +1,189 @@
+---
+- name: Unir Servidor al dominio
+  gather_facts: true
+  hosts: MSP-VS-API-02
+  vars:
+    ansible_become: yes
+    ansible_become_method: sudo
+    ansible_user: "{{ server_username  }}"
+    ansible_ssh_pass: "{{ server_password  }}"
+    ansible_become_pass: "{{ server_password  }}"
+    credentials: {
+               'username': 'julian.almanzar',
+               'password': 'r4F8&7_3BW65'
+              }
+  tasks:
+
+################################
+###### CENTOS SERVERS ##########
+################################
+
+    - name: Install CentOS Packages
+      yum:
+        name:
+          - sssd
+          - realmd
+          - oddjob
+          - oddjob-mkhomedir
+          - adcli
+          - samba-common
+          - samba-common-tools
+          - krb5-workstation
+          - openldap-clients
+          - policycoreutils-python
+        state: present
+      when: ansible_distribution == "CentOS"
+
+    - name: Update Hosts File
+      lineinfile:
+        dest: "/etc/hosts"
+        line: "172.20.80.110   msp-dc-002.msp.gob.do   msp-dc-002"
+        state: present
+        backup: yes
+      when: ansible_distribution == "CentOS"
+
+    - name: Join Realm
+      shell:
+        "echo '{{ credentials['password'] }}' | sudo realm join --user={{ credentials['username'] }} msp.gob.do"
+      register: result
+      when: ansible_distribution == "CentOS"
+    - name: Print Realm Result
+      debug: var=result.stdout_lines
+      when: ansible_distribution == "CentOS"
+
+    - name: Modificar SSDCONF Line 1
+      replace:
+        path: /etc/sssd/sssd.conf
+        regexp: 'use_fully_qualified_names = True'
+        replace: 'use_fully_qualified_names = False'
+      when: ansible_distribution == "CentOS"
+    - name: Modificar SSDCONF Line 2
+      replace:
+        path: /etc/sssd/sssd.conf
+        regexp: 'fallback_homedir = /home/%u@%d'
+        replace: 'fallback_homedir = /home/%u'
+      when: ansible_distribution == "CentOS"
+
+    - name: Restart sssd
+      shell:
+        "sudo systemctl restart sssd"
+      when: ansible_distribution == "CentOS"
+    - name: Daemon Reload
+      shell:
+        "sudo systemctl daemon-reload"
+      when: ansible_distribution == "CentOS"
+
+    - name: Agregar Linux_Servers_Admins a Sudoers
+      lineinfile:
+        dest: "/etc/sudoers"
+        line: "%Linux_Servers_Admins   ALL=(ALL)       NOPASSWD: ALL"
+        state: present
+        backup: yes
+      when: ansible_distribution == "CentOS"
+
+    - name: Allow Only linux_servers_admins Centos
+      shell:
+        "realm permit -g linux_servers_admins@msp.gob.do"
+      when: ansible_distribution == "CentOS"
+
+################################
+###### UBUNTU SERVERS ##########
+################################
+
+    - name: Apt Update
+      shell:
+        "sudo apt-get update -y"
+      when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+
+
+    - name: Install Debian/Ubuntu Packages
+      apt:
+        name:
+          - sssd-ad
+          - sssd-tools
+          - realmd
+          - adcli
+          - packagekit
+        state: present
+      when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+
+    - name: Crear Archivo KRB5
+      copy:
+        dest: "/etc/krb5.conf"
+        content: |
+          [libdefaults]
+          default_realm = MSP.GOB.DO
+          ticket_lifetime = 24h
+          renew_lifetime = 7d
+          dns_lookup_realm = false
+      when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+
+    - name: Install Debian/Ubuntu Remaining Packages
+      apt:
+        name:
+          - krb5-user
+          - sssd-krb5
+        state: present
+      when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+
+    - name: Modificar Hosts File
+      lineinfile:
+        dest: "/etc/hosts"
+        line: "127.0.1.1       {{ ansible_hostname }}.msp.gob.do"
+        state: present
+        backup: yes
+      when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+    - name: Modificar Hostname
+      shell:
+        "sudo hostnamectl set-hostname {{ ansible_hostname }}.msp.gob.do"
+      when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+
+    - name: Kinit
+      shell:
+        "echo '{{ credentials['password'] }}' | sudo kinit {{ credentials['username'] }}"
+      register: result
+      when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+    - name: Print Kinit Result
+      debug: var=result.stdout_lines
+      when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+
+    - name: Join Realm Ubuntu
+      shell:
+        "echo '{{ credentials['password'] }}' | sudo realm join -v -U {{ credentials['username'] }} msp.gob.do"
+      register: result
+      when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+    - name: Print Realm Result
+      debug: var=result.stdout_lines
+      when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+
+    - name: Activate Homedir Creation
+      shell:
+        "sudo pam-auth-update --enable mkhomedir"
+      when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+
+    - name: Modificar SSDCONF Line 1 Ubuntu
+      replace:
+        path: /etc/sssd/sssd.conf
+        regexp: 'use_fully_qualified_names = True'
+        replace: 'use_fully_qualified_names = False'
+      when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+    - name: Modificar SSDCONF Line 2 Ubuntu
+      replace:
+        path: /etc/sssd/sssd.conf
+        regexp: 'fallback_homedir = /home/%u@%d'
+        replace: 'fallback_homedir = /home/%u'
+      when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+
+    - name: Agregar Linux_Servers_Admins a Sudoers Ubuntu
+      lineinfile:
+        dest: "/etc/sudoers"
+        line: "%Linux_Servers_Admins   ALL=(ALL) NOPASSWD:ALL"
+        state: present
+        backup: yes
+      when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+
+    - name: Allow Only linux_servers_admins
+      shell:
+        "realm permit -g linux_servers_admins@msp.gob.do"
+      when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+

@@ -1,0 +1,32 @@
+---
+- name: Create Sudo User
+  hosts: Linux_Test_Servers
+  gather_facts: yes
+  become: yes
+  become_method: sudo
+
+  vars:
+    - ansible_user: mngmnt_user
+    - ansible_ssh_pass: E46h6Hw69X
+    - ansible_become_pass: E46h6Hw69X
+    - groupdict: {
+               'Debian': 'sudo',
+               'Ubuntu': 'sudo',
+               'CentOS': 'wheel'
+              }
+  tasks:
+    - name: Get Distro
+      #debug: msg="{{ ansible_distribution  }} --- {{ ansible_hostname  }}"
+      debug: var=groupdict['{{ ansible_distribution  }}']
+      #when: ansible_distribution == "Debian"
+
+    - name: Crear Usuario
+      user:
+        #Usuario a crear
+        name: USUARIO
+        #Contrasena encriptada
+        password: 'PASSWORD'
+        groups:
+        - "{{ groupdict[ansible_distribution] }}"
+        state: absent
+        shell: /bin/bash
