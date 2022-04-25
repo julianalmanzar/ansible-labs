@@ -1,7 +1,7 @@
 ---
 - name: Playbook de Prueba
   gather_facts: false
-  hosts: all
+  hosts: MSP-VS-MON-02
   vars:
     ansible_become: yes
     ansible_become_method: sudo
