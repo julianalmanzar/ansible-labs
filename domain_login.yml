@@ -1,7 +1,7 @@
 ---
 - name: Unir Servidor al dominio
   gather_facts: true
-  hosts: MSP-VS-API-02
+  hosts: MSP-VS-SNIP-01
   vars:
     ansible_become: yes
     ansible_become_method: sudo

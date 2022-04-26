@@ -1,0 +1,12 @@
+---
+- name: Playbook de Prueba
+  gather_facts: true
+  hosts: all
+
+  tasks:
+    - name: Ping
+      ping:
+    
+    - name: Print Hostname
+      debug: msg='{{ ansible_hostname  }}'
+

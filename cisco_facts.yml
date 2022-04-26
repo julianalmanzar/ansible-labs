@@ -1,0 +1,15 @@
+---
+- name: Print_Cisco_Facts
+  gather_facts: yes
+  hosts: all
+  connection: network_cli
+
+  tasks:
+    - name: Get Facts
+      register: iosfacts_out
+      ios_facts:
+        gather_subset: all
+
+    - name: Print Interfaces
+      debug: msg={{ ansible_net_interfaces  }}
+
