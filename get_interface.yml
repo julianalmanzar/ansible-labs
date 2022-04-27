@@ -1,0 +1,19 @@
+---
+
+- name: Puyando el show interface y procesar texto
+  hosts: router
+  gather_facts: false
+
+  tasks:
+    - name: View Interfaces on Router
+      ios_command:
+        commands: show interfaces summary
+      register: output
+
+    - set_fact:
+      filtro: "{{   }}"
+
+    - name: print output
+      debug:
+        var: output.stdout_lines[0]
+
