@@ -1,0 +1,28 @@
+---
+- name: Leer ,filtrar y procesar archivo de texto
+  gather_facts: true
+  hosts: MSP-VS-MON-02
+  vars:
+    ansible_become: yes
+    ansible_become_method: sudo
+    ansible_user: "{{ server_username  }}"
+    ansible_ssh_pass: "{{ server_password  }}"
+    ansible_become_pass: "{{ server_password  }}"
+    country: MIA
+    
+  tasks:
+    - name: Leer archivo de texto
+      shell:
+        cmd: cat /home/sa-julian.almanzar/file_to_read.txt
+      register: file_content
+
+    - name: Filtrado
+      set_fact:
+        file_content_processed: "{{ file_content.stdout | regex_findall('.{11,12}\tMIA') }}"
+
+    - name: Imprimir Original
+      debug:
+        var: file_content
+
+    - name: Eliminar Final
+      debug: msg="{{ file_content_processed | map('regex_replace', '(\tMIA)', '') | list }}"
